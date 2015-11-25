@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Network Info</string>
+    <string name="action_settings">Settings</string>
+    <!--
+        The following strings are action or label strings.
+    -->
+    <string name="get_latest_logs">Get last 10 logs</string>
+    <string name="start_log">Started Logging</string>
+    <string name="stop_log">Not Logging</string>
+</resources>
