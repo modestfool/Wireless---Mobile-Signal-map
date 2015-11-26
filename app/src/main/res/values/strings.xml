@@ -7,4 +7,5 @@
     <string name="get_latest_logs">Get last 10 logs</string>
     <string name="start_log">Started Logging</string>
     <string name="stop_log">Not Logging</string>
+    <string name="export_db">Export Logs</string>
 </resources>
