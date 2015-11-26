@@ -33,21 +33,24 @@ public final class FeedReaderContract {
         public static final String COLUMN_NAME_TIMESTAMP_EPOCH = "timestamp_epoch";
         public static final String COLUMN_NAME_TIMESTAMP_DATE = "timestamp_date";
         public static final String COLUMN_NAME_TIMESTAMP_DAY = "timestamp_day";
-        public static final String COLUMN_NAME_TIMESTAMP_TIME = "timestamp_time";
+        public static final String COLUMN_NAME_TIMESTAMP_HOUR = "timestamp_hour";
 
         /* Fields of interest, network type (2G, 3G, 4G, Unknown) and respective integer*/
         public static final String COLUMN_NAME_NETWORK_TYPE = "network_type";
-        public static final String COLUMN_NAME_NETWORK_TYPE_INT = "network_type_int";
+        public static final String COLUMN_NAME_NETWORK_TYPE_CLASS = "network_type_class";
         public static final String COLUMN_NAME_NETWORK_OPERATOR_NAME = "network_operator_name";
         public static final String COLUMN_NAME_NETWORK_OPERATOR_CODE = "network_operator_code";
         public static final String COLUMN_NAME_CELL_LOCATION ="cell_location";
-        public static final String COLUMN_NAME_CALL_STATE ="call_state";
-        public static final String COLUMN_NAME_DATA_ACTIVITY ="data_activity";
-        public static final String COLUMN_NAME_DATE_STATE ="data_state";
+        /* Location Fields with accuracy in meters*/
         public static final String COLUMN_NAME_LATITUDE = "latitude";
         public static final String COLUMN_NAME_LONGITUDE = "longitude";
         public static final String COLUMN_NAME_ACCURACY = "accuracy_meters";
-
-
+        /* Call and cellular data states*/
+        public static final String COLUMN_NAME_CALL_STATE ="call_state";
+        public static final String COLUMN_NAME_DATA_ACTIVITY ="data_activity";
+        public static final String COLUMN_NAME_DATA_STATE = "data_state";
+        /*Neighboring Cells Info*/
+        public static final String COLUMN_NAME_CELL_INFO = "cell_info";
+        public static final String COLUMN_NAME_NEIGHBORING_CELLS_INFO = "neighboring_cell_info";
     }
 }

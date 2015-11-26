@@ -1,6 +1,6 @@
 /**
  * An application, that runs in the background to collect logs the Cellular Network info
- * @author: Basava R Kanaparthi(basava.08@gmail.com)
+ * @author: Basava R Kanaparthi(basava.08@gmail.com) created on 21,November,2015.
  */
 package com.project.cse570.networkinfo.Activities;
 
@@ -15,9 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -30,18 +30,18 @@ import com.project.cse570.networkinfo.Services.PeriodicLoggingService;
  */
 public class MainActivity extends AppCompatActivity {
 
+    static final String TOGGLE_STATE = "ToggleButtonState";
+    static final String LOG_TAG = "MainActivity";
+    static final long PERIODIC_INTERVAL = 15 * 1000; //15 seconds
+    public static Context mContext;
+    TelephonyManager mTelephonyManager;
     //private Button startLogging = new Button(get)
     private TextView mTextView;
     private ToggleButton mToggleLogging;
     private Button mStopLogging;
     private Button mGetLastLogs;
-    TelephonyManager mTelephonyManager;
     private AlarmManager mAlarmManager;
     private PendingIntent mPendingIntent;
-    public static Context mContext;
-    static final String TOGGLE_STATE = "ToggleButtonState";
-    static final String LOG_TAG = "MainActivity";
-    static final long PERIODIC_INTERVAL = 15*1000; //15 seconds
 
     //static final String PACKAGE_NAME =
     @Override
@@ -65,10 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 if(mToggleLogging.isChecked())
                 {
                     //startService(new Intent(getApplicationContext(), StartLoggingService.class));
-                    mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,0, PERIODIC_INTERVAL,mPendingIntent);
-                }
-                else if(!mToggleLogging.isChecked())
-                {
+                    mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PERIODIC_INTERVAL, mPendingIntent);
+                } else {
                    // stopService(new Intent(getApplicationContext(),StartLoggingService.class));
                     if(mAlarmManager!=null)
                     {
