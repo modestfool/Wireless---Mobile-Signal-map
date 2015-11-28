@@ -36,6 +36,11 @@ public final class FeedReaderContract {
         public static final String COLUMN_NAME_TIMESTAMP_TIME = "timestamp_time";
 
         /* Fields of interest, network type (2G, 3G, 4G, Unknown) and respective integer*/
+        /*signal strength
+          wifi data
+         */
+
+
         public static final String COLUMN_NAME_NETWORK_TYPE = "network_type";
         public static final String COLUMN_NAME_NETWORK_TYPE_INT = "network_type_int";
         public static final String COLUMN_NAME_NETWORK_OPERATOR_NAME = "network_operator_name";

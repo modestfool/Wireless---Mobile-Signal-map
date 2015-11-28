@@ -53,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
         mToggleLogging = (ToggleButton)findViewById(R.id.togglebutton_log);
         setSupportActionBar(toolbar);
 
+
+
+        //Create the connection
+        Connection.createConnection("130.245.144.191",1883,false,"ANJU",this);
+
+
         mContext = getApplicationContext();
         mToggleLogging.setChecked(restoreState(TOGGLE_STATE,mContext));
         mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
