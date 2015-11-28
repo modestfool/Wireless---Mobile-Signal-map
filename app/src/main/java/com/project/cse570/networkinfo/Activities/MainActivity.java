@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private Button mExportLogs;
     private AlarmManager mAlarmManager;
     private PendingIntent mPendingIntent;
+    public static Context mContext;
+    static final String TOGGLE_STATE = "ToggleButtonState";
+    static final String LOG_TAG = "MainActivity";
+    static final long PERIODIC_INTERVAL = 15*1000; //15 seconds
 
     //static final String PACKAGE_NAME =
     @Override
@@ -64,6 +68,13 @@ public class MainActivity extends AppCompatActivity {
         mToggleLogging = (ToggleButton)findViewById(R.id.togglebutton_log);
         mExportLogs = (Button) findViewById(R.id.button_export_logs);
         setSupportActionBar(toolbar);
+
+
+
+        //Create the connection
+        Connection.createConnection("130.245.144.191",1883,false,"ANJU",this);
+
+
         Log.d(LOG_TAG, DB_PATH);
         mContext = getApplicationContext();
         mToggleLogging.setChecked(restoreState(TOGGLE_STATE, mContext));

@@ -24,6 +24,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.project.cse570.networkinfo.Activities.Connection;
 import com.project.cse570.networkinfo.SQLite.FeedReaderContract;
 import com.project.cse570.networkinfo.SQLite.NetworkDBHelper;
 
@@ -189,6 +190,26 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             Log.d(LOG_TAG, "Location Services TurnedOff - Not Logging");
             //return -1L;
         }
+        return insertNetworkEntry(networkTypeString, context);
+    }
+
+    static long insertNetworkEntry(String network_type, Context context){
+        ContentValues mContentValues = new ContentValues();
+        NetworkDBHelper mNetworkDBHelper = new NetworkDBHelper(context);
+        SQLiteDatabase db = mNetworkDBHelper.getWritableDatabase();
+        Log.d(LOG_TAG, network_type);
+        mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
+
+
+        String topic = "anju/data";
+        Connection.getConnection().publish(topic,FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE.getBytes(),2,true);
+
+
+
+
+        long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, mContentValues); ;
+        Log.d(LOG_TAG,String.valueOf(newRowId));
+        db.close();
         return newRowId;
     }
 
