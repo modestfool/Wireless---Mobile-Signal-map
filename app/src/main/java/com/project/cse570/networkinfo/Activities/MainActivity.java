@@ -26,6 +26,7 @@ import android.widget.ToggleButton;
 
 import com.project.cse570.networkinfo.R;
 import com.project.cse570.networkinfo.SQLite.NetworkDBHelper;
+import com.project.cse570.networkinfo.Services.MqttService;
 import com.project.cse570.networkinfo.Services.PeriodicLoggingService;
 
 import java.io.File;
@@ -39,7 +40,7 @@ import java.util.Date;
  */
 public class MainActivity extends AppCompatActivity {
 
-    public static final String DB_PATH = "/data/data/com.project.cse570.networkinfo/databases/" + NetworkDBHelper.DATABASE_NAME;
+    public static final String DB_PATH = String.format("/data/data/com.project.cse570.networkinfo/databases/%s", NetworkDBHelper.DATABASE_NAME);
     static final String TOGGLE_STATE = "ToggleButtonState";
     static final String LOG_TAG = "MainActivity";
     static final long PERIODIC_INTERVAL = 15 * 1000; //15 seconds
@@ -52,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private Button mExportLogs;
     private AlarmManager mAlarmManager;
     private PendingIntent mPendingIntent;
-    public static Context mContext;
-    static final String TOGGLE_STATE = "ToggleButtonState";
-    static final String LOG_TAG = "MainActivity";
-    static final long PERIODIC_INTERVAL = 15*1000; //15 seconds
 
     //static final String PACKAGE_NAME =
     @Override
@@ -70,10 +67,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-
         //Create the connection
-        Connection.createConnection("130.245.144.191",1883,false,"ANJU",this);
-
+        //Connection.createConnection("130.245.144.191", 1883, false, "ANJU", this);
 
         Log.d(LOG_TAG, DB_PATH);
         mContext = getApplicationContext();
@@ -81,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
         Intent startIntent = new Intent(mContext, PeriodicLoggingService.class);
         mPendingIntent = PendingIntent.getBroadcast(mContext,0,startIntent,0);
+        final Intent mqttserviceIntent = new Intent(mContext, MqttService.class);
 
         mToggleLogging.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +85,13 @@ public class MainActivity extends AppCompatActivity {
                 {
                     //startService(new Intent(getApplicationContext(), StartLoggingService.class));
                     mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PERIODIC_INTERVAL, mPendingIntent);
+                    startService(mqttserviceIntent);
                 } else {
                    // stopService(new Intent(getApplicationContext(),StartLoggingService.class));
                     if(mAlarmManager!=null)
                     {
                         mAlarmManager.cancel(mPendingIntent);
+                        stopService(mqttserviceIntent);
                     }
                 }
             }
@@ -160,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
+   /* @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save UI state changes to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
@@ -176,12 +174,21 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Log.d(LOG_TAG, String.valueOf(savedInstanceState.getBoolean(TOGGLE_STATE)));
         //mToggleLogging.setChecked(savedInstanceState.getBoolean(TOGGLE_STATE, false));
+    }*/
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveState(TOGGLE_STATE, mToggleLogging.isChecked(), mContext);
+//        Connection.getConnection().getClient().unregisterResources();
+//        Connection.getConnection().getClient().close();
     }
 
     @Override
-    public void onPause(){
-        super.onPause();
-        saveState(TOGGLE_STATE,mToggleLogging.isChecked(),mContext);
+    protected void onResume() {
+        super.onResume();
+        //Create the connection
+        //Connection.createConnection("130.245.144.191", 1883, false, "ANJU", this);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

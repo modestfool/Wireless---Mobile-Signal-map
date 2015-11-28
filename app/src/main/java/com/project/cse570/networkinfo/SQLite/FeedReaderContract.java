@@ -57,5 +57,7 @@ public final class FeedReaderContract {
         /*Neighboring Cells Info*/
         public static final String COLUMN_NAME_CELL_INFO = "cell_info";
         public static final String COLUMN_NAME_NEIGHBORING_CELLS_INFO = "neighboring_cell_info";
+        /*Wifi Info*/
+
     }
 }

@@ -24,11 +24,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.Gson;
 import com.project.cse570.networkinfo.Activities.Connection;
 import com.project.cse570.networkinfo.SQLite.FeedReaderContract;
 import com.project.cse570.networkinfo.SQLite.NetworkDBHelper;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -38,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 
 public final class LogNetworkInfo implements com.google.android.gms.location.LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -74,9 +77,9 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
     private static final String DATA_ACTIVITY_NONE = "None";
 
     // Call State
-    private static final String CALL_STATE_IDLE = "Idle";
-    private static final String CALL_STATE_OFFHOOK = "Offhook";
-    private static final String CALL_STATE_RINGING = "Ringing";
+    private static final String CALL_STATE_IDLE = TelephonyManager.EXTRA_STATE_IDLE;
+    private static final String CALL_STATE_OFFHOOK = TelephonyManager.EXTRA_STATE_OFFHOOK;
+    private static final String CALL_STATE_RINGING = TelephonyManager.EXTRA_STATE_RINGING;
 
     // Data State
     private static final String DATA_CONNECTED = "Connected";
@@ -173,6 +176,31 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         //Log.d(LOG_TAG, network_type);
         //mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
         long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, rowEntryContentValues);
+
+        String topic = "anju/data";
+//        JSONObject jo = new JSONObject(rowEntryContentValues);
+        Gson gson = new Gson();
+        String jo = gson.toJson(rowEntryContentValues);
+        //Connection.getConnection().publish(topic,rowEntryContentValues.toString().getBytes(),2,true);
+        Connection.getConnection().publish(topic, jo.getBytes(), 2, true);
+        Log.d(LOG_TAG, String.valueOf((rowEntryContentValues.getAsByteArray("dummy"))));
+        db.close();
+        return newRowId;
+    }
+
+    static long insertNetworkEntry(String network_type, Context context) {
+        ContentValues mContentValues = new ContentValues();
+        NetworkDBHelper mNetworkDBHelper = new NetworkDBHelper(context);
+        SQLiteDatabase db = mNetworkDBHelper.getWritableDatabase();
+        Log.d(LOG_TAG, network_type);
+        mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
+
+
+        String topic = "anju/data";
+        Connection.getConnection().publish(topic, FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE.getBytes(), 2, true);
+
+
+        long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, mContentValues);
         Log.d(LOG_TAG, String.valueOf(newRowId));
         db.close();
         return newRowId;
@@ -190,26 +218,6 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             Log.d(LOG_TAG, "Location Services TurnedOff - Not Logging");
             //return -1L;
         }
-        return insertNetworkEntry(networkTypeString, context);
-    }
-
-    static long insertNetworkEntry(String network_type, Context context){
-        ContentValues mContentValues = new ContentValues();
-        NetworkDBHelper mNetworkDBHelper = new NetworkDBHelper(context);
-        SQLiteDatabase db = mNetworkDBHelper.getWritableDatabase();
-        Log.d(LOG_TAG, network_type);
-        mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
-
-
-        String topic = "anju/data";
-        Connection.getConnection().publish(topic,FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE.getBytes(),2,true);
-
-
-
-
-        long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, mContentValues); ;
-        Log.d(LOG_TAG,String.valueOf(newRowId));
-        db.close();
         return newRowId;
     }
 
@@ -268,8 +276,8 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         // mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         mLastUpdateTime = new Date();
         mLastUpdateTime.getTime();
-        SimpleDateFormat sdf;
-        sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
+//        SimpleDateFormat sdf;
+//        sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
 //        if(mCurrentLocation!=null){
 //            Log.d(LOG_TAG,mCurrentLocation.toString() + sdf.format(mLastUpdateTime));
 //        }
@@ -282,7 +290,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         ContentValues rowNetworkEntry = new ContentValues();
 
         Date date = new Date();
-        SimpleDateFormat sdfDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.US);
+        SimpleDateFormat sdfDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US);
         SimpleDateFormat sdfDay = new SimpleDateFormat("EEEE", Locale.US);
         SimpleDateFormat sdfHour = new SimpleDateFormat("HH", Locale.US);
 
@@ -307,7 +315,8 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         String longitude = "";
         String accuracy = "";
 
-        String cell_info = "";
+        //String cell_info = "";
+        JSONObject cell_info = new JSONObject();
         String neighboring_cell_info = "";
 
         if (mTelephonyManager.getDeviceId() != null) {
@@ -396,7 +405,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         }
         List<CellInfo> allCellInfo = mTelephonyManager.getAllCellInfo();
         if (allCellInfo.size() > 0) {
-            cell_info = getCellInfo(allCellInfo.get(0)).toString();
+            cell_info = getCellInfo(allCellInfo.get(0));//.toString();
             if (allCellInfo.size() > 1) {
                 JSONArray neighboringJsonArray = new JSONArray();
                 for (CellInfo neighborCellInfo : allCellInfo.subList(1, allCellInfo.size())) {
@@ -498,7 +507,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_LONGITUDE, longitude);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_ACCURACY, accuracy);
 
-        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO, cell_info);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO, cell_info.toString());
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO, neighboring_cell_info);
 
 //        Log.d(LOG_TAG, rowNetworkEntry.toString());
@@ -568,9 +577,11 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
 //                Log.i(LOG_TAG, "onCellLocationChanged: " + location.toString());
             }
         }
-        JSONObject jo = new JSONObject(networkTypeMap);
-        Log.d(LOG_TAG, jo.toString());
-        return jo.toString();
+//        JSONObject jo = new JSONObject(networkTypeMap);
+//        Log.d(LOG_TAG, jo.toString());
+        //return jo.toString();
+        Gson gson = new Gson();
+        return gson.toJson(networkTypeMap); // Returns the string
     }
 
     JSONObject getCellInfo(CellInfo cellInfo) {
@@ -646,8 +657,16 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             networkValuesMap.put(KEY_UNKNOWN_TYPE, cellInfo.toString());
             networkTypeMap.put(UNKNOWN, networkValuesMap);
         }
-        JSONObject jo = new JSONObject(networkTypeMap);
-        Log.d(LOG_TAG, jo.toString());
+//        JSONObject jo = new JSONObject(networkTypeMap);
+//        Log.d(LOG_TAG, jo.toString());
+        Gson gson = new Gson();
+        String networkTypeJson = gson.toJson(networkTypeMap);
+        JSONObject jo = null;
+        try {
+            jo = new JSONObject(networkTypeJson);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return jo;
     }
 }

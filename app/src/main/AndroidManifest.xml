@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:Android="http://schemas.android.com/tools"
     package="com.project.cse570.networkinfo">
 
     <uses-permission android:name= "android.permission.READ_PHONE_STATE" />
@@ -8,7 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -26,11 +25,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".Services.StartLoggingService">
-        </service>
-        <service
-            android:name="org.eclipse.paho.android.service.MqttService">
+
+        <service android:name=".Services.StartLoggingService"></service>
+        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
+        <service android:name=".Services.MqttService">
         </service>
         <receiver android:name=".Services.PeriodicLoggingService">
         </receiver>

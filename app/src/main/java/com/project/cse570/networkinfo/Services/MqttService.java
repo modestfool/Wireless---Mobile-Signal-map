@@ -11,10 +11,7 @@ import android.widget.Toast;
 
 import com.project.cse570.networkinfo.Activities.Connection;
 
-/**
- * @author: Basava R. Kanaparthi <basava.08@gmail.com> created on 11/28/2015.
- */
-public class MqttService extends Service{
+public class MqttService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -22,8 +19,8 @@ public class MqttService extends Service{
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
-        super.onStartCommand(intent,flags,startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         //Create the connection
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         Connection.createConnection("130.245.144.191", 1883, false, "ANJU", this);
@@ -31,7 +28,7 @@ public class MqttService extends Service{
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
 
         Connection.getConnection().getClient().unregisterResources();
