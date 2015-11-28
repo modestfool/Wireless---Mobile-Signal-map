@@ -1,7 +1,7 @@
 /**
  * @author: Basava R. Kanaparthi (basava.08@gmail.com) created on 22,November,2015.
  */
-package com.project.cse570.networkinfo.SQLite;
+package com.project.cse570.networkinfo.sqlite;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -44,7 +44,9 @@ public class NetworkDBHelper extends SQLiteOpenHelper {
                     FeedReaderContract.FeedEntry.COLUMN_NAME_DATA_ACTIVITY + TEXT_TYPE + COMMA_SEP +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_DATA_STATE + TEXT_TYPE + COMMA_SEP +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO + TEXT_TYPE + COMMA_SEP +
-                    FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO + TEXT_TYPE +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT + TEXT_TYPE +
                     " )";
     public static String DEVICE_ID = "";
 

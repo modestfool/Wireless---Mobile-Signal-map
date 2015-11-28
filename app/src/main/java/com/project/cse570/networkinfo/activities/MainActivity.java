@@ -2,7 +2,7 @@
  * An application, that runs in the background to collect logs the Cellular Network info
  * @author: Basava R Kanaparthi(basava.08@gmail.com) created on 21,November,2015.
  */
-package com.project.cse570.networkinfo.Activities;
+package com.project.cse570.networkinfo.activities;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -25,9 +25,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.project.cse570.networkinfo.R;
-import com.project.cse570.networkinfo.SQLite.NetworkDBHelper;
-import com.project.cse570.networkinfo.Services.MqttService;
-import com.project.cse570.networkinfo.Services.PeriodicLoggingService;
+import com.project.cse570.networkinfo.services.MqttService;
+import com.project.cse570.networkinfo.services.PeriodicLoggingService;
+import com.project.cse570.networkinfo.sqlite.NetworkDBHelper;
 
 import java.io.File;
 import java.io.FileInputStream;

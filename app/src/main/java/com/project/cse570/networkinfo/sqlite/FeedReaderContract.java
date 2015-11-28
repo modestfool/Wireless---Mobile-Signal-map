@@ -1,5 +1,5 @@
 
-package com.project.cse570.networkinfo.SQLite;
+package com.project.cse570.networkinfo.sqlite;
 
 import android.provider.BaseColumns;
 
@@ -58,6 +58,7 @@ public final class FeedReaderContract {
         public static final String COLUMN_NAME_CELL_INFO = "cell_info";
         public static final String COLUMN_NAME_NEIGHBORING_CELLS_INFO = "neighboring_cell_info";
         /*Wifi Info*/
-
+        public static final String COLUMN_NAME_CURRENT_WIFI_INFO = "current_wifi_info";
+        public static final String COLUMN_NAME_WIFI_SCAN_RESULT = "wifi_scan_result";
     }
 }

@@ -1,7 +1,7 @@
 /**
  * @author: Basava R. Kanaparthi (basava.08@gmail.com) created on 24,November,2015.
  */
-package com.project.cse570.networkinfo.Services;
+package com.project.cse570.networkinfo.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

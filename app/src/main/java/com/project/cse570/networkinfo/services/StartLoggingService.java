@@ -1,13 +1,11 @@
 /**
  * @author: Basava R. Kanaparthi (basava.08@gmail.com) created on 22,November,2015.
  */
-package com.project.cse570.networkinfo.Services;
+package com.project.cse570.networkinfo.services;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;

@@ -10,7 +10,7 @@
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package com.project.cse570.networkinfo.Activities;
+package com.project.cse570.networkinfo.activities;
 
 //import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
 
@@ -29,6 +29,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  */
 class ActionListener implements IMqttActionListener {
 
+    private static final String LOG_TAG = "ActionListener";
     /**
      * The {@link Action} that is associated with this instance of
      * <code>ActionListener</code>
@@ -43,7 +44,6 @@ class ActionListener implements IMqttActionListener {
      **/
     private Context context;
     private MqttAndroidClient client = null;
-
     /**
      * Creates a generic action listener for actions performed form any activity
      *
@@ -52,7 +52,7 @@ class ActionListener implements IMqttActionListener {
      *                       S
      *                       The handle for the client which the action is being performed
      *                       on
-     * @param additionalArgs Used for as arguments for string formating
+     * @param additionalArgs Used for as arguments for string formatting
      */
     public ActionListener(Context context, Action action, String additionalArgs, MqttAndroidClient client) {
 
@@ -100,7 +100,7 @@ class ActionListener implements IMqttActionListener {
 //    Notify.toast(context, actionTaken, Toast.LENGTH_SHORT);
 
         System.out.println("Successfully published");
-        Log.d("Spectre", "Publish Success");
+        Log.i(LOG_TAG, "Publish Success");
     }
 
     /**
@@ -116,7 +116,7 @@ class ActionListener implements IMqttActionListener {
 //    Notify.toast(context, actionTaken, Toast.LENGTH_SHORT);
 
 
-        Log.e("mytag", "Subscribe Success");
+        Log.i(LOG_TAG, "Subscribe Success");
 
     }
 
@@ -148,10 +148,10 @@ class ActionListener implements IMqttActionListener {
 
         //send a hello message with my current location
 
-        Connection.getConnection().publish("anju/hello", "Hello Anju".getBytes(), 2, true);
-        Log.e("anju", "hello published");
+        Connection.getConnection().publish("networkInfo/hello", "Hello NetworkInfo".getBytes(), 2, true);
+        Log.i(LOG_TAG, "hello published");
 
-        //also subscrie to controller messages
+        //also subscribe to controller messages
 
         //String subscribeTopic = "controller/"+mac;
         // Connection.getConnection().subscribe(subscribeTopic, 2);
@@ -167,11 +167,11 @@ class ActionListener implements IMqttActionListener {
         ActionListener callback = new ActionListener(context, Action.SUBSCRIBE, null, client);
         try {
 
-            Log.e("mytag", "Subscribing to controller with " + topic);
+            Log.i(LOG_TAG, "Subscribing to controller with " + topic);
             client.subscribe(topic, qos, null, callback);
         } catch (MqttException me) {
 
-            Log.e("mytag", "error subscribing");
+            Log.e(LOG_TAG, "error subscribing");
         }
 
     }
@@ -209,7 +209,7 @@ class ActionListener implements IMqttActionListener {
     private void publish(Throwable exception) {
 
         System.out.println("Publish Failed");
-        Log.e("Spectre", "Publish Failed " + exception);
+        Log.e(LOG_TAG, "Publish Failed " + exception);
 
     }
 
@@ -221,7 +221,7 @@ class ActionListener implements IMqttActionListener {
     private void subscribe(Throwable exception) {
 
         System.out.println("Subscribe Failed");
-        Log.d("Spectre", "Subscribe Failed");
+        Log.e(LOG_TAG, "Subscribe Failed");
 
     }
 
@@ -232,7 +232,7 @@ class ActionListener implements IMqttActionListener {
      */
     private void disconnect(Throwable exception) {
 
-        Log.d("Spectre", "Disconnect Failed");
+        Log.e(LOG_TAG, "Disconnect Failed");
 
     }
 

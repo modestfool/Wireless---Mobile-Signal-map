@@ -1,22 +1,22 @@
 /**
  * @author: Basava R. Kanaparthi,(basava.08@gmail.com) created on 22,November,2015.
  */
-package com.project.cse570.networkinfo.Services;
+package com.project.cse570.networkinfo.services;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
 import android.widget.Toast;
-import com.project.cse570.networkinfo.SQLite.NetworkDBHelper;
+
+import com.project.cse570.networkinfo.sqlite.NetworkDBHelper;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;

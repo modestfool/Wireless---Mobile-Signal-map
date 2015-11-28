@@ -10,12 +10,12 @@
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package com.project.cse570.networkinfo.Activities;
+package com.project.cse570.networkinfo.activities;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.project.cse570.networkinfo.Activities.ActionListener.Action;
+import com.project.cse570.networkinfo.activities.ActionListener.Action;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -70,7 +70,7 @@ public class Connection {
 
     /**
      * Creates a connection object with the server information and the client
-     * hand which is the reference used to pass the client around activities
+     * hand which is the reference used to pass the client around Activities
      */
     private Connection(String host, int port, boolean sslConnection, String clientID, MqttAndroidClient client) {
         //generate the client handle from its hash code
@@ -131,7 +131,7 @@ public class Connection {
          */
             client.setCallback(msgHandler);
             client.connect(conOpt, context, callback);
-            Log.e("mytag", "santosh connected " + client.isConnected());
+            Log.i("mytag", "santosh connected " + client.isConnected());
         } catch (MqttException me) {
 
             //System.out.println("reason "+me.getReasonCode());
@@ -165,11 +165,11 @@ public class Connection {
 	/* Set up callback for the publish event */
         ActionListener callback = new ActionListener(context, Action.PUBLISH, null, client);
 
-        Log.e("mytag", "Sending message client connected :" + client.isConnected());
+        Log.i("mytag", "Sending message client connected :" + client.isConnected());
 
 
         try {
-            Log.e("mytag", "Sending data on: " + topic);
+            Log.i("mytag", "Sending data on: " + topic);
             //message      = "Some message from : " + getDeviceName() + " " + mTCPClient.result.toString();
             //client.publish(topic, message.getBytes(), qos, retained, null,callback);
             client.publish(topic, message, qos, retained, null, callback);

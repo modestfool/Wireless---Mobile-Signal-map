@@ -10,7 +10,7 @@
  * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package com.project.cse570.networkinfo.Activities;
+package com.project.cse570.networkinfo.activities;
 
 //import org.eclipse.paho.android.service.sample.R;
 
