@@ -51,11 +51,12 @@ public class NetworkDBHelper extends SQLiteOpenHelper {
     public static String DEVICE_ID = "";
 
 
-    public NetworkDBHelper(Context mContext){
-        super(mContext,DATABASE_NAME,null,DATABASE_VERSION);
+    public NetworkDBHelper(Context mContext) {
+        super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
         TelephonyManager mtelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         DEVICE_ID = mtelephonyManager.getDeviceId();
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(LOG_TAG, SQL_CREATE_TABLE);
@@ -63,7 +64,7 @@ public class NetworkDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Drop and create again.
         db.execSQL(SQL_DROP_TABLE);
         onCreate(db);

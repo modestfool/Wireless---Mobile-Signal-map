@@ -14,10 +14,11 @@ import android.widget.Toast;
 public class StartLoggingService extends Service {
     private TelephonyManager mTelephonyManager;
     private CellStateListener mCellStateListener;
+
     @Override
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
-        mTelephonyManager = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         mCellStateListener = new CellStateListener(getApplicationContext());
     }
 
@@ -30,7 +31,7 @@ public class StartLoggingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Let it continue running until it is stopped.
         mTelephonyManager.listen(mCellStateListener,
-                        PhoneStateListener.LISTEN_CELL_INFO |
+                PhoneStateListener.LISTEN_CELL_INFO |
                         PhoneStateListener.LISTEN_CELL_LOCATION |
                         PhoneStateListener.LISTEN_SERVICE_STATE |
                         PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
@@ -42,6 +43,6 @@ public class StartLoggingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
-       mTelephonyManager.listen(mCellStateListener,PhoneStateListener.LISTEN_NONE);
+        mTelephonyManager.listen(mCellStateListener, PhoneStateListener.LISTEN_NONE);
     }
 }

@@ -44,6 +44,7 @@ class ActionListener implements IMqttActionListener {
      **/
     private Context context;
     private MqttAndroidClient client = null;
+
     /**
      * Creates a generic action listener for actions performed form any activity
      *

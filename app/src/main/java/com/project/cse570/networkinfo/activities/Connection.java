@@ -159,7 +159,7 @@ public class Connection {
     public void publish(String topic, byte[] message, int qos, boolean retained) {
 
   	/*
-  	 * This function will publish to the mqtt broker encapsulated by this connection
+       * This function will publish to the mqtt broker encapsulated by this connection
   	 */
 
 	/* Set up callback for the publish event */

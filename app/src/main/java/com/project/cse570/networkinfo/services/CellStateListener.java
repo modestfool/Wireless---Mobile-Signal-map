@@ -28,14 +28,16 @@ public class CellStateListener extends PhoneStateListener {
     NetworkDBHelper mNetworkDBHelper;
     SQLiteDatabase db;
     LogNetworkInfo mLogNetworkInfo;
-    public CellStateListener(Context context){
+
+    public CellStateListener(Context context) {
         mContext = context;
         mNetworkDBHelper = new NetworkDBHelper(mContext);
         db = mNetworkDBHelper.getWritableDatabase();
         mLogNetworkInfo = new LogNetworkInfo();
     }
+
     @Override
-    public void onCellInfoChanged(List<CellInfo> cellInfo){
+    public void onCellInfoChanged(List<CellInfo> cellInfo) {
         super.onCellInfoChanged(cellInfo);
         Log.i(LOG_TAG, "CellInfo Changed");
         Toast.makeText(mContext, "CellInfo Changed", Toast.LENGTH_SHORT).show();
@@ -43,6 +45,7 @@ public class CellStateListener extends PhoneStateListener {
 //        int networkType = mTelephonyManager.getNetworkType();
 //        Log.i(LOG_TAG,String.valueOf(networkType));
     }
+
     @Override
     public void onCellLocationChanged(CellLocation location) {
         super.onCellLocationChanged(location);

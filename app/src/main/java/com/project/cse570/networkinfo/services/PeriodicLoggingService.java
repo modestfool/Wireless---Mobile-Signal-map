@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 
-public class PeriodicLoggingService extends BroadcastReceiver{
+public class PeriodicLoggingService extends BroadcastReceiver {
     static final String LOG_TAG = "PeriodicLoggingService";
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;

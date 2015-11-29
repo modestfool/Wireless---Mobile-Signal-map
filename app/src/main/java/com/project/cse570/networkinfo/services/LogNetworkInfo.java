@@ -7,6 +7,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.CellInfo;
@@ -24,13 +28,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.gson.Gson;
 import com.project.cse570.networkinfo.activities.Connection;
 import com.project.cse570.networkinfo.sqlite.FeedReaderContract;
 import com.project.cse570.networkinfo.sqlite.NetworkDBHelper;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -162,8 +164,26 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
     private static final String CELL_INFO_KEY_WCDMA_DBM = "WCDMA_Dbm";
     private static final String CELL_INFO_KEY_WCDMA_LEVEL = "WCDMA_SignalLevel";
 
+    // Wifi Info
+    private static final String WIFI_INFO_BSSID = "Wifi_BSSID";
+    private static final String WIFI_INFO_FREQUENCY = "Wifi_Frequency";
+    private static final String WIFI_INFO_HIDDEN_SSID = "Wifi_HiddenSSID";
+    private static final String WIFI_INFO_IP_ADDRESS = "Wifi_IpAddress";
+    private static final String WIFI_INFO_LINK_SPEED = "Wifi_LinkSpeed";
+    private static final String WIFI_INFO_MAC_ADDRESS = "Wifi_MacAddress";
+    private static final String WIFI_INFO_NETWORK_ID = "Wifi_NetworkId";
+    private static final String WIFI_INFO_RSSI = "Wifi_RSSI";
+    private static final String WIFI_INFO_SSID = "Wifi_SSID";
+    // Wifi Scanresult
+    private static final String WIFI_INFO_CHANNEL_WIDTH = "Wifi_ChannelWidth";
+    private static final String WIFI_INFO_LEVEL = "Wifi_Level";
+    private static final String WIFI_INFO_VENUE_NAME = "Wifi_VenueName";
+    private static final String WIFI_INFO_OPERATOR_FRIENDLY_NAME = "Wifi_OpearatorFriendlyName";
+    private static final String WIFI_INFO_SCAN_RESULTS = "Wifi_ScanResults";
+
     static Location mCurrentLocation;
     static Context context;
+    static Map<String, Object> rowNetworkEntryMap = new HashMap<String, Object>();
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location mLastLocation;
@@ -177,34 +197,20 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         //mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
         long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, rowEntryContentValues);
 
-        String topic = "anju/data";
+        String topic = "networkInfo/data";
 //        JSONObject jo = new JSONObject(rowEntryContentValues);
-        Gson gson = new Gson();
-        String jo = gson.toJson(rowEntryContentValues);
+        // Gson gson = new Gson();
+//        String jo = gson.toJson(rowEntryContentValues);
+        //String jo = gson.toJson(rowNetworkEntryMap);
+        JSONObject jo = new JSONObject(rowNetworkEntryMap);
         //Connection.getConnection().publish(topic,rowEntryContentValues.toString().getBytes(),2,true);
-        Connection.getConnection().publish(topic, jo.getBytes(), 2, true);
-        Log.d(LOG_TAG, String.valueOf((rowEntryContentValues.getAsByteArray("dummy"))));
+        if (Connection.getConnection() != null)
+            Connection.getConnection().publish(topic, jo.toString().getBytes(), 2, true);
+//        Log.d(LOG_TAG, String.valueOf((rowEntryContentValues.getAsByteArray("dummy"))));
         db.close();
         return newRowId;
     }
 
-    static long insertNetworkEntry(String network_type, Context context) {
-        ContentValues mContentValues = new ContentValues();
-        NetworkDBHelper mNetworkDBHelper = new NetworkDBHelper(context);
-        SQLiteDatabase db = mNetworkDBHelper.getWritableDatabase();
-        Log.d(LOG_TAG, network_type);
-        mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
-
-
-        String topic = "anju/data";
-        Connection.getConnection().publish(topic, FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE.getBytes(), 2, true);
-
-
-        long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, mContentValues);
-        Log.d(LOG_TAG, String.valueOf(newRowId));
-        db.close();
-        return newRowId;
-    }
 
     public long LogNetworkDetails(Context context) {
 
@@ -215,7 +221,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             //ContentValues rowEntryContentValues = getNetworkInfo(context);
             //return insertNetworkEntry(rowEntryContentValues, context);
         } else {
-            Log.d(LOG_TAG, "Location Services TurnedOff - Not Logging");
+            Log.d(LOG_TAG, "Location services TurnedOff - Not Logging");
             //return -1L;
         }
         return newRowId;
@@ -305,7 +311,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         String networkTypeClass;
         String networkOperatorName;
         String networkOperatorCode;
-        String cellLocation;
+        JSONObject cellLocation;
 
         String call_state;
         String data_activity;
@@ -318,7 +324,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         //String cell_info = "";
         JSONObject cell_info = new JSONObject();
         String neighboring_cell_info = "";
-
+        JSONArray neighboringJsonArray = new JSONArray();
         if (mTelephonyManager.getDeviceId() != null) {
             Log.d(LOG_TAG, mTelephonyManager.getDeviceId());
             deviceId = mTelephonyManager.getDeviceId();
@@ -407,7 +413,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         if (allCellInfo.size() > 0) {
             cell_info = getCellInfo(allCellInfo.get(0));//.toString();
             if (allCellInfo.size() > 1) {
-                JSONArray neighboringJsonArray = new JSONArray();
+//                JSONArray neighboringJsonArray = new JSONArray();
                 for (CellInfo neighborCellInfo : allCellInfo.subList(1, allCellInfo.size())) {
                     neighboringJsonArray.put(getCellInfo(neighborCellInfo));
                 }
@@ -486,6 +492,9 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
                 networkTypeClass = UNKNOWN;
         }
 
+        JSONObject wifiInfo = getWifiInfo(context);
+        JSONObject wifiScanResult = getWifiScanResult(context);
+//        Map rowNetworkEntryMap = new HashMap();
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE_ID, deviceId);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE_SOFTWARE_VERSION, deviceSoftwareVersion);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP_EPOCH, timestampEpoch);
@@ -497,7 +506,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, networkTypeString);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_OPERATOR_NAME, networkOperatorName);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_OPERATOR_CODE, networkOperatorCode);
-        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_LOCATION, cellLocation);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_LOCATION, cellLocation.toString());
 
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CALL_STATE, call_state);
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DATA_ACTIVITY, data_activity);
@@ -510,6 +519,46 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO, cell_info.toString());
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO, neighboring_cell_info);
 
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO, wifiInfo.toString());
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT, wifiScanResult.toString());
+
+        /*
+        * Map Values to be sent over the network
+        * */
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE_ID, deviceId);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE_SOFTWARE_VERSION, deviceSoftwareVersion);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP_EPOCH, timestampEpoch);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP_DATE, timestampDate);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP_DAY, timestampDay);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP_HOUR, timestampHour);
+
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE_CLASS, networkTypeClass);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, networkTypeString);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_OPERATOR_NAME, networkOperatorName);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_OPERATOR_CODE, networkOperatorCode);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_LOCATION, cellLocation);
+
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CALL_STATE, call_state);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DATA_ACTIVITY, data_activity);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DATA_STATE, data_state);
+
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_LATITUDE, latitude);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_LONGITUDE, longitude);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_ACCURACY, accuracy);
+
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO, cell_info);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO, neighboringJsonArray);
+
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO, wifiInfo);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT, wifiScanResult);
+
+        /*
+        * End of MapValues
+        *
+         */
+
+
+
 //        Log.d(LOG_TAG, rowNetworkEntry.toString());
 //        Log.d(LOG_TAG,String.valueOf(networkType));
 //        Log.d(LOG_TAG,networkOperatorName);
@@ -520,7 +569,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         return rowNetworkEntry;
     }
 
-    String getCellLocation(TelephonyManager mTelephonyManager) {
+    JSONObject getCellLocation(TelephonyManager mTelephonyManager) {
         CellLocation location = mTelephonyManager.getCellLocation();
         Map<String, Map<String, Serializable>> networkTypeMap = new HashMap<>();
         Map<String, java.io.Serializable> networkValuesMap = new HashMap<>();
@@ -577,11 +626,12 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
 //                Log.i(LOG_TAG, "onCellLocationChanged: " + location.toString());
             }
         }
-//        JSONObject jo = new JSONObject(networkTypeMap);
-//        Log.d(LOG_TAG, jo.toString());
+        JSONObject jo = new JSONObject(networkTypeMap);
+        Log.d(LOG_TAG, jo.toString());
         //return jo.toString();
-        Gson gson = new Gson();
-        return gson.toJson(networkTypeMap); // Returns the string
+//        Gson gson = new Gson();
+//        return gson.toJson(networkTypeMap); // Returns the string
+        return jo;
     }
 
     JSONObject getCellInfo(CellInfo cellInfo) {
@@ -589,7 +639,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         Map<String, Map<Object, Serializable>> networkTypeMap = new HashMap<>();
         Map<Object, Serializable> networkValuesMap = new HashMap<>();
         // Common Fields
-        networkValuesMap.put(CELL_INFO_KEY_IS_REGISTERED, cellInfo.isRegistered());
+        networkValuesMap.put(CELL_INFO_KEY_IS_REGISTERED, (cellInfo.isRegistered()) ? "True" : "False");
         networkValuesMap.put(CELL_INFO_KEY_TIMESTAMP_VALUE, cellInfo.getTimeStamp());
         if (cellInfo instanceof CellInfoCdma) {
             CellInfoCdma cellInfoCdma = (CellInfoCdma) cellInfo;
@@ -657,16 +707,84 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             networkValuesMap.put(KEY_UNKNOWN_TYPE, cellInfo.toString());
             networkTypeMap.put(UNKNOWN, networkValuesMap);
         }
-//        JSONObject jo = new JSONObject(networkTypeMap);
+        JSONObject jo = new JSONObject(networkTypeMap);
+        Log.d(LOG_TAG, jo.toString());
 //        Log.d(LOG_TAG, jo.toString());
-        Gson gson = new Gson();
+        /*Gson gson = new Gson();
         String networkTypeJson = gson.toJson(networkTypeMap);
         JSONObject jo = null;
         try {
             jo = new JSONObject(networkTypeJson);
         } catch (JSONException e) {
             e.printStackTrace();
+        }*/
+        return jo;
+    }
+
+    JSONObject getWifiInfo(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        Map<String, Serializable> wifiInfoMap = new HashMap<>();
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (wifiInfo != null) {
+            wifiInfoMap.put(WIFI_INFO_BSSID, wifiInfo.getBSSID());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                wifiInfoMap.put(WIFI_INFO_FREQUENCY, wifiInfo.getFrequency() + WifiInfo.FREQUENCY_UNITS);
+            }
+            wifiInfoMap.put(WIFI_INFO_HIDDEN_SSID, (wifiInfo.getHiddenSSID()) ? "True" : "False");
+            wifiInfoMap.put(WIFI_INFO_IP_ADDRESS, wifiInfo.getIpAddress());
+            wifiInfoMap.put(WIFI_INFO_LINK_SPEED, wifiInfo.getLinkSpeed() + WifiInfo.LINK_SPEED_UNITS);
+            wifiInfoMap.put(WIFI_INFO_MAC_ADDRESS, wifiInfo.getMacAddress());
+            wifiInfoMap.put(WIFI_INFO_NETWORK_ID, wifiInfo.getNetworkId());
+            wifiInfoMap.put(WIFI_INFO_RSSI, wifiInfo.getRssi());
+            String ssid = wifiInfo.getSSID().replace("\"", "");
+            Log.d(LOG_TAG, ssid);
+            wifiInfoMap.put(WIFI_INFO_SSID, ssid);
+//            Gson gson = new Gson();
+//            return gson.toJson(wifiInfoMap);
         }
+//        else {
+//            return "";
+//        }
+        JSONObject jo = new JSONObject(wifiInfoMap);
+        Log.d(LOG_TAG, jo.toString());
+        return jo;
+    }
+
+    JSONObject getWifiScanResult(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        Map<String, Map<String, Object>> wifiScanMap = new HashMap<>();
+        List<ScanResult> scanResults = wifiManager.getScanResults();
+        JSONArray jsonWifiArray = new JSONArray();
+        if (scanResults.size() > 0) {
+            for (ScanResult s : scanResults) {
+                Map<String, Object> wifiInfoMap = new HashMap<>();
+                wifiInfoMap.put(WIFI_INFO_BSSID, s.BSSID);
+                wifiInfoMap.put(WIFI_INFO_SSID, s.SSID);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    wifiInfoMap.put(WIFI_INFO_CHANNEL_WIDTH, s.channelWidth);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    wifiInfoMap.put(WIFI_INFO_FREQUENCY, s.frequency + WifiInfo.FREQUENCY_UNITS);
+                } else {
+                    wifiInfoMap.put(WIFI_INFO_FREQUENCY, s.frequency + "MHz");
+                }
+                wifiInfoMap.put(WIFI_INFO_LEVEL, s.level);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    wifiInfoMap.put(WIFI_INFO_OPERATOR_FRIENDLY_NAME, s.operatorFriendlyName);
+                    wifiInfoMap.put(WIFI_INFO_VENUE_NAME, s.venueName);
+                }
+                wifiScanMap.put(s.SSID, wifiInfoMap);
+//                jsonWifiArray.put(new JSONObject(wifiInfoMap));
+            }
+        } else {
+            if (wifiManager.isScanAlwaysAvailable()) {
+                wifiManager.startScan();
+            }
+        }
+//        Gson gson = new Gson();
+//        return gson.toJson(wifiScanMap);
+        JSONObject jo = new JSONObject(wifiScanMap);
+        Log.d(LOG_TAG, jo.toString());
         return jo;
     }
 }

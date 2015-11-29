@@ -1,5 +1,6 @@
 /**
  * An application, that runs in the background to collect logs the Cellular Network info
+ *
  * @author: Basava R Kanaparthi(basava.08@gmail.com) created on 21,November,2015.
  */
 package com.project.cse570.networkinfo.activities;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         mTextView = (TextView) findViewById(R.id.textView2);
-        mToggleLogging = (ToggleButton)findViewById(R.id.togglebutton_log);
+        mToggleLogging = (ToggleButton) findViewById(R.id.togglebutton_log);
         mExportLogs = (Button) findViewById(R.id.button_export_logs);
         setSupportActionBar(toolbar);
 
@@ -73,23 +74,21 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, DB_PATH);
         mContext = getApplicationContext();
         mToggleLogging.setChecked(restoreState(TOGGLE_STATE, mContext));
-        mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent startIntent = new Intent(mContext, PeriodicLoggingService.class);
-        mPendingIntent = PendingIntent.getBroadcast(mContext,0,startIntent,0);
+        mPendingIntent = PendingIntent.getBroadcast(mContext, 0, startIntent, 0);
         final Intent mqttserviceIntent = new Intent(mContext, MqttService.class);
 
         mToggleLogging.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mToggleLogging.isChecked())
-                {
+                if (mToggleLogging.isChecked()) {
                     //startService(new Intent(getApplicationContext(), StartLoggingService.class));
                     mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PERIODIC_INTERVAL, mPendingIntent);
                     startService(mqttserviceIntent);
                 } else {
-                   // stopService(new Intent(getApplicationContext(),StartLoggingService.class));
-                    if(mAlarmManager!=null)
-                    {
+                    // stopService(new Intent(getApplicationContext(),StartLoggingService.class));
+                    if (mAlarmManager != null) {
                         mAlarmManager.cancel(mPendingIntent);
                         stopService(mqttserviceIntent);
                     }
@@ -190,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         //Create the connection
         //Connection.createConnection("130.245.144.191", 1883, false, "ANJU", this);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -212,15 +212,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void saveState(String key, Boolean value, Context mContext){
+    void saveState(String key, Boolean value, Context mContext) {
         SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         SharedPreferences.Editor mEditor = mPrefs.edit();
-        mEditor.putBoolean(key,value);
+        mEditor.putBoolean(key, value);
         mEditor.apply();
     }
 
-    Boolean restoreState(String key, Context mContext){
+    Boolean restoreState(String key, Context mContext) {
         SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        return mPrefs.getBoolean(key,false);
+        return mPrefs.getBoolean(key, false);
     }
 }

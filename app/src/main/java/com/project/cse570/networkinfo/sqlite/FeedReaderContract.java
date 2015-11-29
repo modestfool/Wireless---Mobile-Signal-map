@@ -1,4 +1,3 @@
-
 package com.project.cse570.networkinfo.sqlite;
 
 import android.provider.BaseColumns;
@@ -45,14 +44,14 @@ public final class FeedReaderContract {
         public static final String COLUMN_NAME_NETWORK_TYPE_CLASS = "network_type_class";
         public static final String COLUMN_NAME_NETWORK_OPERATOR_NAME = "network_operator_name";
         public static final String COLUMN_NAME_NETWORK_OPERATOR_CODE = "network_operator_code";
-        public static final String COLUMN_NAME_CELL_LOCATION ="cell_location";
+        public static final String COLUMN_NAME_CELL_LOCATION = "cell_location";
         /* Location Fields with accuracy in meters*/
         public static final String COLUMN_NAME_LATITUDE = "latitude";
         public static final String COLUMN_NAME_LONGITUDE = "longitude";
         public static final String COLUMN_NAME_ACCURACY = "accuracy_meters";
         /* Call and cellular data states*/
-        public static final String COLUMN_NAME_CALL_STATE ="call_state";
-        public static final String COLUMN_NAME_DATA_ACTIVITY ="data_activity";
+        public static final String COLUMN_NAME_CALL_STATE = "call_state";
+        public static final String COLUMN_NAME_DATA_ACTIVITY = "data_activity";
         public static final String COLUMN_NAME_DATA_STATE = "data_state";
         /*Neighboring Cells Info*/
         public static final String COLUMN_NAME_CELL_INFO = "cell_info";
