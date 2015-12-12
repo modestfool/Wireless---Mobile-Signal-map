@@ -10,6 +10,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -25,47 +29,159 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.project.cse570.networkinfo.R;
+import com.project.cse570.networkinfo.constants.Constants;
 import com.project.cse570.networkinfo.services.MqttService;
 import com.project.cse570.networkinfo.services.PeriodicLoggingService;
+import com.project.cse570.networkinfo.sqlite.FeedReaderContract;
 import com.project.cse570.networkinfo.sqlite.NetworkDBHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * The execution point, whenever the app is launched, it comes here.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
     public static final String DB_PATH = String.format("/data/data/com.project.cse570.networkinfo/databases/%s", NetworkDBHelper.DATABASE_NAME);
     static final String TOGGLE_STATE = "ToggleButtonState";
     static final String LOG_TAG = "MainActivity";
-    static final long PERIODIC_INTERVAL = 15 * 1000; //15 seconds
+
     public static Context mContext;
     TelephonyManager mTelephonyManager;
     //private Button startLogging = new Button(get)
-    private TextView mTextView;
+    private TextView mTextView, toolbarTextView;
     private ToggleButton mToggleLogging;
     private Button mStopLogging;
     private Button mExportLogs;
     private AlarmManager mAlarmManager;
     private PendingIntent mPendingIntent;
-
+    private PieChart mPieChart;
+    private Cursor mCursor1, mCursor2;
+    private SQLiteDatabase db;
     //static final String PACKAGE_NAME =
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Typeface tf = Typeface.createFromAsset(this.getAssets(), "OpenSans-Regular.ttf");
 
         mTextView = (TextView) findViewById(R.id.textView2);
         mToggleLogging = (ToggleButton) findViewById(R.id.togglebutton_log);
         mExportLogs = (Button) findViewById(R.id.button_export_logs);
+//        toolbarTextView = (TextView) toolbar.findViewById(R.id.helpTextView);
+
+        mTextView.setTypeface(tf);
+        mToggleLogging.setTypeface(tf);
+        mExportLogs.setTypeface(tf);
+//        toolbarTextView.setTypeface(tf);
+
         setSupportActionBar(toolbar);
+
+        NetworkDBHelper mNetworkDBHelper = new NetworkDBHelper(this);
+        db = mNetworkDBHelper.getReadableDatabase();
+        mCursor1 = db.rawQuery("SELECT " + FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE_CLASS + " ,COUNT(*) AS cnt FROM "
+                + FeedReaderContract.FeedEntry.TABLE_NAME + " GROUP BY " + FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE_CLASS, null);
+
+        mCursor2 = db.rawQuery("SELECT COUNT(*) AS cnt FROM " + FeedReaderContract.FeedEntry.TABLE_NAME, null);
+
+        mPieChart = (PieChart) findViewById(R.id.pieChart1);
+        mPieChart.setDescription("");
+
+
+        mPieChart.setCenterTextTypeface(tf);
+        mPieChart.setCenterText("Network Type");
+        mPieChart.setCenterTextSize(11f);
+        mPieChart.setCenterTextTypeface(tf);
+
+        // radius of the center hole in percent of maximum radius
+        mPieChart.setHoleRadius(45f);
+        mPieChart.setTransparentCircleRadius(50f);
+
+        Legend l = mPieChart.getLegend();
+        l.setPosition(Legend.LegendPosition.BELOW_CHART_RIGHT);
+
+        int count = 4;
+
+        ArrayList<Entry> entries1 = new ArrayList<Entry>();
+        ArrayList<String> xVals = new ArrayList<String>();
+
+        mCursor2.moveToFirst();
+        int count2 = mCursor2.getInt(mCursor2.getColumnIndex("cnt"));
+        Log.d(LOG_TAG + "Rows", String.valueOf(count2));
+
+        while (mCursor1.moveToNext()) {
+            int count3 = mCursor1.getInt(mCursor1.getColumnIndex("cnt"));
+            String network = mCursor1.getString(mCursor1.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE_CLASS));
+            Log.d(LOG_TAG, mCursor1.toString());
+            Log.d(LOG_TAG + " Network", network);
+            Log.d(LOG_TAG + " Fraction", String.valueOf((double) count3 / count2));
+
+
+            switch (network) {
+                case Constants.NETWORK_TYPE_CLASS_2G:
+                    xVals.add(Constants.NETWORK_TYPE_CLASS_2G);
+                    //xVals.add("entry" + (0+1));
+                    entries1.add(new Entry(((float) count3 / count2) * 100, 0));
+                    break;
+                case Constants.NETWORK_TYPE_CLASS_3G:
+                    xVals.add(Constants.NETWORK_TYPE_CLASS_3G);
+                    //xVals.add("entry" + (1+1));
+                    entries1.add(new Entry(((float) count3 / count2) * 100, 1));
+                    break;
+                case Constants.NETWORK_TYPE_CLASS_4G:
+                    xVals.add(Constants.NETWORK_TYPE_CLASS_4G);
+                    //xVals.add("entry" + (2+1));
+                    entries1.add(new Entry(((float) count3 / count2) * 100, 2));
+                    break;
+                case Constants.UNKNOWN:
+                    xVals.add(Constants.UNKNOWN);
+                    //xVals.add("entry" + (3+1));
+                    entries1.add(new Entry(((float) count3 / count2) * 100, 3));
+                    break;
+            }
+        }
+        /*for(int i = 0; i < count; i++) {
+            xVals.add("entry" + (i+1));
+
+            entries1.add(new Entry((float) (Math.random() * 60) + 40, i));
+        }*/
+
+        PieDataSet ds1 = new PieDataSet(entries1, "Cellular Networks");
+        ds1.setSliceSpace(2f);
+        ds1.setSelectionShift(5f);
+
+        ds1.setColors(ColorTemplate.PASTEL_COLORS);
+        ds1.setValueTextColor(Color.BLACK);
+        ds1.setValueTextSize(12f);
+        ds1.setValueFormatter(new PercentFormatter());
+        //ds1.setHighlightEnabled(true);
+
+        PieData d = new PieData(xVals, ds1);
+        d.setValueTypeface(tf);
+
+        mPieChart.setDragDecelerationFrictionCoef(0.95f);
+        mPieChart.setHighlightPerTapEnabled(true);
+        mPieChart.setData(d);
+
+        mPieChart.highlightValues(null);
+        mPieChart.invalidate();
+
 
 
         //Create the connection
@@ -84,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mToggleLogging.isChecked()) {
                     //startService(new Intent(getApplicationContext(), StartLoggingService.class));
-                    mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, PERIODIC_INTERVAL, mPendingIntent);
+                    mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, Constants.PERIODIC_INTERVAL, mPendingIntent);
                     startService(mqttserviceIntent);
                 } else {
                     // stopService(new Intent(getApplicationContext(),StartLoggingService.class));
@@ -205,7 +321,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_help) {
+            startActivity(new Intent(this, HelpActivity.class));
             return true;
         }
 
@@ -223,4 +340,20 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         return mPrefs.getBoolean(key, false);
     }
+
+    @Override
+    public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+
+        if (e == null)
+            return;
+        Log.i("VAL SELECTED",
+                "Value: " + e.getVal() + ", xIndex: " + e.getXIndex()
+                        + ", DataSet index: " + dataSetIndex);
+    }
+
+    @Override
+    public void onNothingSelected() {
+        Log.i("PieChart", "nothing selected");
+    }
+
 }

@@ -24,7 +24,6 @@ public class PeriodicLoggingService extends BroadcastReceiver {
         LogNetworkInfo mLogNetworkInfo = new LogNetworkInfo();
         Toast.makeText(context, "Periodic Intent Received", Toast.LENGTH_SHORT).show();
         Log.d(LOG_TAG, "Received Intent");
-
         mLogNetworkInfo.LogNetworkDetails(context);
     }
 }

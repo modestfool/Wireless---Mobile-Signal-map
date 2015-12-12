@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.project.cse570.networkinfo.activities.Connection;
+import com.project.cse570.networkinfo.constants.Constants;
 import com.project.cse570.networkinfo.sqlite.FeedReaderContract;
 import com.project.cse570.networkinfo.sqlite.NetworkDBHelper;
 
@@ -46,37 +47,8 @@ import java.util.Map;
 
 public final class LogNetworkInfo implements com.google.android.gms.location.LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    /*Network Type Strings */
-    // 2G
-    public static final String NETWORK_TYPE_CLASS_2G = "2G";
-    public static final String NETWORK_TYPE_GPRS = "GPRS";
-    public static final String NETWORK_TYPE_EDGE = "EDGE";
-    public static final String NETWORK_TYPE_CDMA = "CDMA";
-    public static final String NETWORK_TYPE_1xRTT = "1xRTT";
-    public static final String NETWORK_TYPE_IDEN = "IDEN";
-    // 3G
-    public static final String NETWORK_TYPE_CLASS_3G = "3G";
-    public static final String NETWORK_TYPE_UMTS = "UMTS";
-    public static final String NETWORK_TYPE_EVDO_0 = "EVDO_0";
-    public static final String NETWORK_TYPE_EVDO_A = "EVDO_A";
-    public static final String NETWORK_TYPE_HSDPA = "HSDPA";
-    public static final String NETWORK_TYPE_HSUPA = "HSUPA";
-    public static final String NETWORK_TYPE_HSPA = "HSPA";
-    public static final String NETWORK_TYPE_EVDO_B = "EVDO_B";
-    public static final String NETWORK_TYPE_EHRPD = "EHRPD";
-    public static final String NETWORK_TYPE_HSPAP = "HSPAP";
-    // 4G
-    public static final String NETWORK_TYPE_CLASS_4G = "4G";
-    public static final String NETWORK_TYPE_LTE = "LTE";
-
-    public static final String UNKNOWN = "UNKNOWN";
-    //Data Activity
-    public static final String DATA_ACTIVITY_DORMANT = "Dormant";
-    public static final String DATA_ACTIVITY_IN = "In";
-    public static final String DATA_ACTIVITY_INOUT = "InOut";
     private static final String LOG_TAG = "LogNetworkInfo";
-    private static final String DATA_ACTIVITY_OUT = "Out";
-    private static final String DATA_ACTIVITY_NONE = "None";
+
 
     // Call State
     private static final String CALL_STATE_IDLE = TelephonyManager.EXTRA_STATE_IDLE;
@@ -197,7 +169,6 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         //mContentValues.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE, network_type);
         long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, rowEntryContentValues);
 
-        String topic = "networkInfo/data";
 //        JSONObject jo = new JSONObject(rowEntryContentValues);
         // Gson gson = new Gson();
 //        String jo = gson.toJson(rowEntryContentValues);
@@ -205,8 +176,9 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         JSONObject jo = new JSONObject(rowNetworkEntryMap);
         //Connection.getConnection().publish(topic,rowEntryContentValues.toString().getBytes(),2,true);
         if (Connection.getConnection() != null)
-            Connection.getConnection().publish(topic, jo.toString().getBytes(), 2, true);
+            Connection.getConnection().publish(Constants.TOPIC, jo.toString().getBytes(), 2, true);
 //        Log.d(LOG_TAG, String.valueOf((rowEntryContentValues.getAsByteArray("dummy"))));
+        //Log.d(LOG_TAG + "Data Usage: ",String.valueOf((int)jo.toString().getBytes().length));
         db.close();
         return newRowId;
     }
@@ -252,7 +224,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(LOG_TAG, connectionResult.getErrorMessage());
+        Log.d(LOG_TAG, " On connection failed : " + connectionResult.getErrorMessage());
     }
 
     protected synchronized void buildGoogleApiClient(Context context) {
@@ -332,6 +304,8 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             Log.d(LOG_TAG, deviceId);
         }
+
+//        Constants.TOPIC = String.format("networkInfo_%s/data",deviceId);
         deviceSoftwareVersion = mTelephonyManager.getDeviceSoftwareVersion();
         timestampEpoch = date.getTime();
         timestampDate = sdfDate.format(date);
@@ -348,22 +322,22 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         int data_activity_status = mTelephonyManager.getDataActivity();
         switch (data_activity_status) {
             case TelephonyManager.DATA_ACTIVITY_DORMANT:
-                data_activity = DATA_ACTIVITY_DORMANT;
+                data_activity = Constants.DATA_ACTIVITY_DORMANT;
                 break;
             case TelephonyManager.DATA_ACTIVITY_IN:
-                data_activity = DATA_ACTIVITY_IN;
+                data_activity = Constants.DATA_ACTIVITY_IN;
                 break;
             case TelephonyManager.DATA_ACTIVITY_INOUT:
-                data_activity = DATA_ACTIVITY_INOUT;
+                data_activity = Constants.DATA_ACTIVITY_INOUT;
                 break;
             case TelephonyManager.DATA_ACTIVITY_OUT:
-                data_activity = DATA_ACTIVITY_OUT;
+                data_activity = Constants.DATA_ACTIVITY_OUT;
                 break;
             case TelephonyManager.DATA_ACTIVITY_NONE:
-                data_activity = DATA_ACTIVITY_NONE;
+                data_activity = Constants.DATA_ACTIVITY_NONE;
                 break;
             default:
-                data_activity = UNKNOWN;
+                data_activity = Constants.UNKNOWN;
         }
 
 
@@ -379,7 +353,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
                 call_state = CALL_STATE_RINGING;
                 break;
             default:
-                call_state = UNKNOWN;
+                call_state = Constants.UNKNOWN;
         }
 
         int data_state_int = mTelephonyManager.getDataState();
@@ -397,7 +371,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
                 data_state = DATA_DISCONNECTED;
                 break;
             default:
-                data_state = UNKNOWN;
+                data_state = Constants.UNKNOWN;
         }
 
         if (mCurrentLocation != null) {
@@ -428,68 +402,68 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
 
         switch (networkType) {
             case TelephonyManager.NETWORK_TYPE_GPRS:
-                networkTypeString = NETWORK_TYPE_GPRS;
-                networkTypeClass = NETWORK_TYPE_CLASS_2G;
+                networkTypeString = Constants.NETWORK_TYPE_GPRS;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_2G;
                 break;
             case TelephonyManager.NETWORK_TYPE_EDGE:
-                networkTypeString = NETWORK_TYPE_EDGE;
-                networkTypeClass = NETWORK_TYPE_CLASS_2G;
+                networkTypeString = Constants.NETWORK_TYPE_EDGE;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_2G;
                 break;
             case TelephonyManager.NETWORK_TYPE_CDMA:
-                networkTypeString = NETWORK_TYPE_CDMA;
-                networkTypeClass = NETWORK_TYPE_CLASS_2G;
+                networkTypeString = Constants.NETWORK_TYPE_CDMA;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_2G;
                 break;
             case TelephonyManager.NETWORK_TYPE_1xRTT:
-                networkTypeString = NETWORK_TYPE_1xRTT;
-                networkTypeClass = NETWORK_TYPE_CLASS_2G;
+                networkTypeString = Constants.NETWORK_TYPE_1xRTT;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_2G;
                 break;
             case TelephonyManager.NETWORK_TYPE_IDEN:
-                networkTypeString = NETWORK_TYPE_IDEN;
-                networkTypeClass = NETWORK_TYPE_CLASS_2G;
+                networkTypeString = Constants.NETWORK_TYPE_IDEN;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_2G;
                 break;
             case TelephonyManager.NETWORK_TYPE_UMTS:
-                networkTypeString = NETWORK_TYPE_UMTS;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_UMTS;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                networkTypeString = NETWORK_TYPE_EVDO_0;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_EVDO_0;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                networkTypeString = NETWORK_TYPE_EVDO_A;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_EVDO_A;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_HSDPA:
-                networkTypeString = NETWORK_TYPE_HSDPA;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_HSDPA;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_HSUPA:
-                networkTypeString = NETWORK_TYPE_HSUPA;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_HSUPA;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_HSPA:
-                networkTypeString = NETWORK_TYPE_HSPA;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_HSPA;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                networkTypeString = NETWORK_TYPE_EVDO_B;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_EVDO_B;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_EHRPD:
-                networkTypeString = NETWORK_TYPE_EHRPD;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_EHRPD;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_HSPAP:
-                networkTypeString = NETWORK_TYPE_HSPAP;
-                networkTypeClass = NETWORK_TYPE_CLASS_3G;
+                networkTypeString = Constants.NETWORK_TYPE_HSPAP;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_3G;
                 break;
             case TelephonyManager.NETWORK_TYPE_LTE:
-                networkTypeString = NETWORK_TYPE_LTE;
-                networkTypeClass = NETWORK_TYPE_CLASS_4G;
+                networkTypeString = Constants.NETWORK_TYPE_LTE;
+                networkTypeClass = Constants.NETWORK_TYPE_CLASS_4G;
                 break;
             default:
-                networkTypeString = UNKNOWN;
-                networkTypeClass = UNKNOWN;
+                networkTypeString = Constants.UNKNOWN;
+                networkTypeClass = Constants.UNKNOWN;
         }
 
         JSONObject wifiInfo = getWifiInfo(context);
@@ -620,9 +594,9 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
 //                        "onCellLocationChanged: CdmaCellLocation getSystemId "
 //                                + ccLoc.getSystemId());
             } else {
-                networkValuesMap.put(CELL_LOCATION_TYPE, UNKNOWN);
+                networkValuesMap.put(CELL_LOCATION_TYPE, Constants.UNKNOWN);
                 networkValuesMap.put(KEY_UNKNOWN_TYPE, location.toString());
-                networkTypeMap.put(UNKNOWN, networkValuesMap);
+                networkTypeMap.put(Constants.UNKNOWN, networkValuesMap);
 //                Log.i(LOG_TAG, "onCellLocationChanged: " + location.toString());
             }
         }
@@ -705,7 +679,7 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             networkTypeMap.put(CELL_INFO_VALUE_WCDMA, networkValuesMap);
         } else {
             networkValuesMap.put(KEY_UNKNOWN_TYPE, cellInfo.toString());
-            networkTypeMap.put(UNKNOWN, networkValuesMap);
+            networkTypeMap.put(Constants.UNKNOWN, networkValuesMap);
         }
         JSONObject jo = new JSONObject(networkTypeMap);
         Log.d(LOG_TAG, jo.toString());
