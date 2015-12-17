@@ -14,4 +14,5 @@
     <string name="start_log">Stop Logging</string>
     <string name="stop_log">Start Logging</string>
     <string name="export_db">Export Logs</string>
+    <string name="show_map">Show Map</string>
 </resources>

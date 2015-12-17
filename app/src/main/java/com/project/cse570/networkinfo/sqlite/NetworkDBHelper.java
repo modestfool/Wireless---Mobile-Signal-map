@@ -14,7 +14,7 @@ import android.util.Log;
  */
 public class NetworkDBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "NetworkInfo.db";
     private static final String LOG_TAG = "NetworkDBHelper";
     private static final String TEXT_TYPE = " TEXT";
@@ -46,7 +46,12 @@ public class NetworkDBHelper extends SQLiteOpenHelper {
                     FeedReaderContract.FeedEntry.COLUMN_NAME_CELL_INFO + TEXT_TYPE + COMMA_SEP +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_NEIGHBORING_CELLS_INFO + TEXT_TYPE + COMMA_SEP +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO + TEXT_TYPE + COMMA_SEP +
-                    FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT + TEXT_TYPE +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_BRAND + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_MANUFACTURER + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_MODEL + TEXT_TYPE + COMMA_SEP +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_PRODUCT + TEXT_TYPE +
                     " )";
     public static String DEVICE_ID = "";
 

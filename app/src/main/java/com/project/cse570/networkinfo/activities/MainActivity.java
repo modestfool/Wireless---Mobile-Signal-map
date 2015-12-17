@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     //private Button startLogging = new Button(get)
     private TextView mTextView, toolbarTextView;
     private ToggleButton mToggleLogging;
-    private Button mStopLogging;
+    private Button mShowMap;
     private Button mExportLogs;
     private AlarmManager mAlarmManager;
     private PendingIntent mPendingIntent;
@@ -81,14 +81,16 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         Typeface tf = Typeface.createFromAsset(this.getAssets(), "OpenSans-Regular.ttf");
 
-        mTextView = (TextView) findViewById(R.id.textView2);
+//        mTextView = (TextView) findViewById(R.id.textView2);
         mToggleLogging = (ToggleButton) findViewById(R.id.togglebutton_log);
         mExportLogs = (Button) findViewById(R.id.button_export_logs);
+        mShowMap = (Button) findViewById(R.id.button_show_map);
 //        toolbarTextView = (TextView) toolbar.findViewById(R.id.helpTextView);
 
-        mTextView.setTypeface(tf);
+//        mTextView.setTypeface(tf);
         mToggleLogging.setTypeface(tf);
         mExportLogs.setTypeface(tf);
+        mShowMap.setTypeface(tf);
 //        toolbarTextView.setTypeface(tf);
 
         setSupportActionBar(toolbar);
@@ -108,10 +110,12 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mPieChart.setCenterText("Network Type");
         mPieChart.setCenterTextSize(11f);
         mPieChart.setCenterTextTypeface(tf);
-
         // radius of the center hole in percent of maximum radius
         mPieChart.setHoleRadius(45f);
         mPieChart.setTransparentCircleRadius(50f);
+
+        mPieChart.setRotationEnabled(true);
+        mPieChart.setHighlightPerTapEnabled(true);
 
         Legend l = mPieChart.getLegend();
         l.setPosition(Legend.LegendPosition.BELOW_CHART_RIGHT);
@@ -179,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mPieChart.setHighlightPerTapEnabled(true);
         mPieChart.setData(d);
 
-        mPieChart.highlightValues(null);
+//        mPieChart.highlightValues(null);
         mPieChart.invalidate();
 
 
@@ -228,6 +232,12 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             }
         });
 
+        mShowMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+            }
+        });
         mTelephonyManager = (TelephonyManager)
                 this.getSystemService(Context.TELEPHONY_SERVICE);
         //CellInfoGsm cellinfogsm = (CellInfoGsm)mTelephonyManager.getAllCellInfo().get(0);

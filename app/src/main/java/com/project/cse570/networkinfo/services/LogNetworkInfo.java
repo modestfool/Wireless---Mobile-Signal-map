@@ -384,18 +384,20 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
             accuracy = String.valueOf(mLastLocation.getAccuracy());
         }
         List<CellInfo> allCellInfo = mTelephonyManager.getAllCellInfo();
-        if (allCellInfo.size() > 0) {
-            cell_info = getCellInfo(allCellInfo.get(0));//.toString();
-            if (allCellInfo.size() > 1) {
+        if (allCellInfo != null) {
+            if (allCellInfo.size() > 0) {
+                cell_info = getCellInfo(allCellInfo.get(0));//.toString();
+                if (allCellInfo.size() > 1) {
 //                JSONArray neighboringJsonArray = new JSONArray();
-                for (CellInfo neighborCellInfo : allCellInfo.subList(1, allCellInfo.size())) {
-                    neighboringJsonArray.put(getCellInfo(neighborCellInfo));
-                }
-                neighboring_cell_info = neighboringJsonArray.toString();
-                Log.d(LOG_TAG, neighboring_cell_info);
+                    for (CellInfo neighborCellInfo : allCellInfo.subList(1, allCellInfo.size())) {
+                        neighboringJsonArray.put(getCellInfo(neighborCellInfo));
+                    }
+                    neighboring_cell_info = neighboringJsonArray.toString();
+                    Log.d(LOG_TAG, neighboring_cell_info);
 //            for (int i = 1; i < allCellInfo.size(); i++) {
 //                neighboring_cell_info += " | " + allCellInfo.get(i).toString();
 //            }
+                }
             }
         }
         int networkType = mTelephonyManager.getNetworkType();
@@ -496,6 +498,12 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO, wifiInfo.toString());
         rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT, wifiScanResult.toString());
 
+        /*Device Info*/
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_BRAND, Build.BRAND);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE, Build.DEVICE);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MANUFACTURER, Build.MANUFACTURER);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MODEL, Build.MODEL);
+        rowNetworkEntry.put(FeedReaderContract.FeedEntry.COLUMN_NAME_PRODUCT, Build.PRODUCT);
         /*
         * Map Values to be sent over the network
         * */
@@ -526,6 +534,11 @@ public final class LogNetworkInfo implements com.google.android.gms.location.Loc
         rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CURRENT_WIFI_INFO, wifiInfo);
         rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_WIFI_SCAN_RESULT, wifiScanResult);
 
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_BRAND, Build.BRAND);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DEVICE, Build.DEVICE);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MANUFACTURER, Build.MANUFACTURER);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MODEL, Build.MODEL);
+        rowNetworkEntryMap.put(FeedReaderContract.FeedEntry.COLUMN_NAME_PRODUCT, Build.PRODUCT);
         /*
         * End of MapValues
         *

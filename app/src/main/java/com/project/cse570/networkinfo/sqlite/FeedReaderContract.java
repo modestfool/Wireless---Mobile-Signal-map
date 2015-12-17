@@ -59,5 +59,11 @@ public final class FeedReaderContract {
         /*Wifi Info*/
         public static final String COLUMN_NAME_CURRENT_WIFI_INFO = "current_wifi_info";
         public static final String COLUMN_NAME_WIFI_SCAN_RESULT = "wifi_scan_result";
+        /*Device Info*/
+        public static final String COLUMN_NAME_BRAND = "brand_name";
+        public static final String COLUMN_NAME_DEVICE = "device_name";
+        public static final String COLUMN_NAME_MANUFACTURER = "manufacturer_name";
+        public static final String COLUMN_NAME_MODEL = "model_name";
+        public static final String COLUMN_NAME_PRODUCT = "product_name";
     }
 }

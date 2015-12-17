@@ -7,7 +7,7 @@ package com.project.cse570.networkinfo.constants;/**
  */
 public final class Constants {
 
-    public static final long PERIODIC_INTERVAL = 5 * 1000; //15 seconds
+    public static final long PERIODIC_INTERVAL = 15 * 1000; //15 seconds
     public static final String MQTT_HOST = "130.245.144.191";
     public static final int MQTT_PORT = 1883;
     public static final boolean IS_SSL = false;

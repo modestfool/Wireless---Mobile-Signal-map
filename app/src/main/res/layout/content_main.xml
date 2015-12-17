@@ -17,33 +17,33 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:padding="20dp"
         android:textAllCaps="false"
         android:textOff="@string/stop_log"
         android:textOn="@string/start_log" />
+
+    <Button
+        android:id="@+id/button_show_map"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/togglebutton_log"
+        android:layout_below="@id/togglebutton_log"
+        android:text="@string/show_map"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/button_export_logs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignStart="@id/togglebutton_log"
-        android:layout_below="@id/togglebutton_log"
-        android:padding="20dp"
+        android:layout_below="@id/button_show_map"
         android:text="@string/export_db"
         android:textAllCaps="false" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@id/togglebutton_log"
-        android:layout_below="@id/button_export_logs"
-        android:padding="20dp"
-        android:text="@string/app_name" />
 
     <include
         layout="@layout/piechart_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/textView2" />
+        android:layout_below="@id/button_export_logs"
+        android:layout_margin="10dp" />
 </RelativeLayout>

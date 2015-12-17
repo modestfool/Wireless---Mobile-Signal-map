@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -22,7 +21,7 @@ public class PeriodicLoggingService extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         LogNetworkInfo mLogNetworkInfo = new LogNetworkInfo();
-        Toast.makeText(context, "Periodic Intent Received", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "Periodic Intent Received", Toast.LENGTH_SHORT).show();
         Log.d(LOG_TAG, "Received Intent");
         mLogNetworkInfo.LogNetworkDetails(context);
     }
