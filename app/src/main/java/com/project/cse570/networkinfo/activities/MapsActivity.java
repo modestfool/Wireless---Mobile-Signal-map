@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -98,8 +99,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 + FeedReaderContract.FeedEntry.TABLE_NAME, null);
 
         while (mCursor.moveToNext()) {
-            double lat = Double.parseDouble(mCursor.getString(mCursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_LATITUDE)));
-            double lng = Double.parseDouble(mCursor.getString(mCursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_LONGITUDE)));
+            double lat;
+            double lng;
+            try {
+                lat = Double.parseDouble(mCursor.getString(mCursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_LATITUDE)));
+                lng = Double.parseDouble(mCursor.getString(mCursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_LONGITUDE)));
+            } catch (Exception e) {
+                Log.d(LOG_TAG, e.getMessage());
+                continue;
+            }
             int mNetworkType = 0;
             switch (mCursor.getString(mCursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_NETWORK_TYPE_CLASS))) {
                 case "2G":
